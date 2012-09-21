@@ -1,5 +1,10 @@
-FRC Team 2585 code.
+ScitoBot
+========
 
-Codename: ScitoBot
+Building and Deploying
+----------------------
+Use [patfair/ucpp](https://github.com/patfair/ucpp).
 
-Use patfair/ucpp to compile and deploy.
+References
+----------
+- [WPILib](https://github.com/rbmj/wpilib)
