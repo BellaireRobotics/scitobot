@@ -3,7 +3,16 @@ ScitoBot
 
 Building and Deploying
 ----------------------
-Use [patfair/ucpp](https://github.com/patfair/ucpp).
+```
+$ git clone git://github.com/patfair/ucpp.git
+$ less ucpp/README # Set up ucpp for your env. 
+...
+$ git clone git://github.com/leroux/scitobot.git
+$ cd scitobot
+$ ucpp init && ucpp configure
+$ make
+$ make deploy
+```
 
 References
 ----------
