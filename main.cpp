@@ -5,7 +5,7 @@ ScitoBot::ScitoBot(void) {
   rightStick = new Joystick(1);
   leftStick = new Joystick(2);
 
-  gyroChannel = new AnalogChannel(14);
+  gyroChannel = new AnalogChannel(2);
   gyro = new Gyro(gyroChannel);
 
   /* Sonar | What channels?
@@ -14,8 +14,9 @@ ScitoBot::ScitoBot(void) {
   sonar = new Ultrasonic(sonar_ping, sonar_echo);
   */
 
-  shooter_encoder_chan = new AnalogChannel(1);
-  // shooter_encoder = new Encoder(shooter_encoder_chan); // fix args
+  enc_shooter = new Encoder(1, 2);
+  enc_right = new Encoder(3, 4);
+  enc_left = new Encoder(5, 6);
 
   // Camera not mounted and connected yet.
   // AxisCamera &cam = AxisCamera::GetInstance();
@@ -46,17 +47,22 @@ void ScitoBot::DisabledPeriodic(void) {
 }
 
 void ScitoBot::AutonomousPeriodic(void) {
-  static const float Kp = 0.03; // proportional constant for gyro re-align
-  float angle = gyro->GetAngle();
+  angle = gyro->GetAngle();
+  printf("angle = %f\n", angle);
 
-  drive->Drive(0.3, 0.0);
-  Wait(0.5);
+  //drive->Drive(-0.4, -angle * 1);
+  drive->Drive(0.2, 0.0);
+  Wait(2.0);
 
-  drive->Drive(-0.3, -angle * Kp);
-  Wait(0.5);
+  drive->Drive(-0.2, 0.0);
+  Wait(8.0);
 
-  drive->Drive(0.3, 0.3);
-  Wait(0.5);
+  /*
+  drive->Drive(-0.5, 0.0);
+  Wait(1.0);
+  */
+
+  drive->Drive(0.0, 0.0); // stop!
 }
 
 void ScitoBot::TeleopPeriodic(void) {

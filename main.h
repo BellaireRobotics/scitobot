@@ -23,8 +23,12 @@ class ScitoBot : public IterativeRobot {
   AnalogChannel *sonar_ping;
   AnalogChannel *sonar_echo;
 
-  Encoder *shooter_encoder;
-  AnalogChannel *shooter_encoder_chan;
+  Encoder *enc_shooter;
+  Encoder *enc_right;
+  Encoder *enc_left;
+
+  static const float Kp = 0.03;
+  float angle;
 
 public:
   ScitoBot(void);
