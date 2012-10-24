@@ -2,13 +2,12 @@
 #define MAIN_H
 
 #include "AnalogChannel.h"
-#include "Encoder.h"
-#include "Gyro.h"
 #include "IterativeRobot.h"
+#include "Jaguar.h"
 #include "Joystick.h"
+#include "Relay.h"
 #include "RobotDrive.h"
 #include "Timer.h"
-#include "Ultrasonic.h"
 #include "Vision/AxisCamera.h"
 
 class ScitoBot : public IterativeRobot {
@@ -16,19 +15,10 @@ class ScitoBot : public IterativeRobot {
   Joystick *rightStick;
   Joystick *leftStick;
 
-  AnalogChannel *gyroChannel;
-  Gyro *gyro;
+  Jaguar *shooter;
+  Jaguar *pickup;
 
-  Ultrasonic *sonar;
-  AnalogChannel *sonar_ping;
-  AnalogChannel *sonar_echo;
-
-  Encoder *enc_shooter;
-  Encoder *enc_right;
-  Encoder *enc_left;
-
-  static const float Kp = 0.03;
-  float angle;
+  Relay *bridge;
 
 public:
   ScitoBot(void);

@@ -2,34 +2,20 @@
 
 ScitoBot::ScitoBot(void) {
   drive = new RobotDrive(1, 2);
-  rightStick = new Joystick(1);
-  leftStick = new Joystick(2);
+  leftStick = new Joystick(1);
+  rightStick = new Joystick(2);
 
-  gyroChannel = new AnalogChannel(2);
-  gyro = new Gyro(gyroChannel);
+  shooter = new Jaguar(4);
+  pickup = new Jaguar(5);
 
-  /* Sonar | What channels?
-  sonar_ping = new AnalogChannel(2);
-  sonar_echo = new AnalogChannel(3);
-  sonar = new Ultrasonic(sonar_ping, sonar_echo);
-  */
+  bridge = new Relay(1);
 
-  enc_shooter = new Encoder(1, 2);
-  enc_right = new Encoder(3, 4);
-  enc_left = new Encoder(5, 6);
-
-  // Camera not mounted and connected yet.
   // AxisCamera &cam = AxisCamera::GetInstance();
 }
 
 void ScitoBot::RobotInit(void) {
-  drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);
-  drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
-  drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
-  drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
-
   GetWatchdog().SetEnabled(false);
-  drive->SetExpiration(5.0);
+  drive->SetExpiration(0.1);
   drive->SetSafetyEnabled(true);
 }
 
@@ -37,7 +23,6 @@ void ScitoBot::DisabledInit(void) {
 }
 
 void ScitoBot::AutonomousInit(void) {
-  gyro->Reset(); // Calibrate - Set heading to 0.
 }
 
 void ScitoBot::TeleopInit(void) {
@@ -47,26 +32,36 @@ void ScitoBot::DisabledPeriodic(void) {
 }
 
 void ScitoBot::AutonomousPeriodic(void) {
-  angle = gyro->GetAngle();
-  printf("angle = %f\n", angle);
-
-  //drive->Drive(-0.4, -angle * 1);
-  drive->Drive(0.2, 0.0);
-  Wait(2.0);
-
-  drive->Drive(-0.2, 0.0);
-  Wait(8.0);
-
-  /*
-  drive->Drive(-0.5, 0.0);
-  Wait(1.0);
-  */
-
   drive->Drive(0.0, 0.0); // stop!
 }
 
 void ScitoBot::TeleopPeriodic(void) {
   drive->TankDrive(leftStick, rightStick);
+
+  // Shooter - Right Joy (Trigger)
+  if (rightStick->GetTrigger()) {
+    shooter->Set((-rightStick->GetThrottle() + 1) / 2);
+  } else {
+    shooter->Set(0.0);
+  }
+
+  // Pickup: Forward - Left Joy (3) || Backward - Left Joy (2)
+  if (leftStick->GetRawButton(3)) {
+    pickup->Set((-leftStick->GetThrottle() + 1) / 2);
+  } else if (leftStick->GetRawButton(2)) {
+    pickup->Set((leftStick->GetThrottle() - 1) / 2);
+  } else {
+    pickup->Set(0.0);
+  }
+
+  // Bridge: Up - Right Joy (3) || Down - Right Joy (2)
+  if (rightStick->GetRawButton(3)) {
+    bridge->Set(Relay::kForward);
+  } else if (rightStick->GetRawButton(2)) {
+    bridge->Set(Relay::kReverse);
+  } else {
+    bridge->Set(Relay::kOff);
+  }
 }
 
 void ScitoBot::DisabledContinuous(void) {
