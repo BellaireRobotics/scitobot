@@ -46,7 +46,7 @@ void ScitoBot::TeleopPeriodic(void) {
   }
 
   // Pickup: Forward - Left Joy (3) || Backward - Left Joy (2)
-  if (leftStick->GetRawButton(3)) {
+  if (leftStick->GetRawButton(3) || leftStick->GetThrottle()) {
     pickup->Set((-leftStick->GetThrottle() + 1) / 2);
   } else if (leftStick->GetRawButton(2)) {
     pickup->Set((leftStick->GetThrottle() - 1) / 2);
