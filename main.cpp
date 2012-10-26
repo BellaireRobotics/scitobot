@@ -10,7 +10,7 @@ ScitoBot::ScitoBot(void) {
 
   bridge = new Relay(1);
 
-  auto_time = new Timer();
+  AxisCamera &cam = AxisCamera::GetInstance();
 }
 
 void ScitoBot::RobotInit(void) {
@@ -19,14 +19,16 @@ void ScitoBot::RobotInit(void) {
   drive->SetSafetyEnabled(true);
 
   shooter_speed_selection = 1; // default to button speed control
-  shooter_speed = 0.75; // default shooter speed
+  shooter_speed = 0.0; // default shooter speed
+
+  pickup_speed_selection = 2; // default to throttle speed control
+  pickup_speed = 0.0; // default pickup speed
 }
 
 void ScitoBot::DisabledInit(void) {
 }
 
 void ScitoBot::AutonomousInit(void) {
-  auto_time->Start(); // Start a timer to delay pickup motor.
 }
 
 void ScitoBot::TeleopInit(void) {
@@ -37,13 +39,7 @@ void ScitoBot::DisabledPeriodic(void) {
 
 void ScitoBot::AutonomousPeriodic(void) {
   shooter->Set(1.0);
-
-  // Check if 5 seconds (5000 milliseconds) has passed.
-  if (auto_time->Get() > 5000) {
-    pickup->Set(0.75);
-
-    auto_time->Stop();
-  }
+  pickup->Set(0.50);
 }
 
 void ScitoBot::TeleopPeriodic(void) {
@@ -61,9 +57,7 @@ void ScitoBot::TeleopPeriodic(void) {
       shooter_speed = 1.0;
     }
 
-    if (right_joy->GetTrigger()) {
-      shooter->Set(shooter_speed);
-    }
+    shooter->Set(shooter_speed);
   }
 
   // Shooter - Throttle Speed Selection
@@ -75,22 +69,49 @@ void ScitoBot::TeleopPeriodic(void) {
     }
   }
 
-  // Select Button/Throttle Speed Control
+  // Shooter - Select Button/Throttle Speed Control
   if (right_joy->GetRawButton(8)) {
     shooter_speed_selection = 1;
+    shooter_speed = 0;
   } else if (right_joy->GetRawButton(9)) {
     shooter_speed_selection = 2;
   }
 
-  // Pickup: Up - Left Joy (3) or Left Trigger || Reverse - Left Joy (2)
-  if (left_joy->GetRawButton(3)) {
-    pickup->Set(NORMALIZE(left_joy->GetThrottle()));
-  } else if (left_joy->GetTrigger()) {
-    pickup->Set(NORMALIZE(left_joy->GetThrottle()));
-  } else if (left_joy->GetRawButton(2)) {
-    pickup->Set(-NORMALIZE(left_joy->GetThrottle()));
-  } else {
-    pickup->Set(0.0);
+
+  // Pickup - Button Speed Selection
+  if (pickup_speed_selection == 1) {
+    if (left_joy->GetRawButton(6)) {
+      pickup_speed = 0.25;
+    } else if (left_joy->GetRawButton(7)) {
+      pickup_speed = 0.50;
+    } else if (left_joy->GetRawButton(11)) {
+      pickup_speed = 0.75;
+    } else if (left_joy->GetRawButton(10)) {
+      pickup_speed = 1.0;
+    }
+
+    pickup->Set(pickup_speed);
+  }
+
+  // Pickup Throttle: Up - Left Joy (3) or Left Trigger || Reverse - Left Joy (2)
+  if (pickup_speed_selection == 2) {
+    if (left_joy->GetRawButton(3)) {
+      pickup->Set(NORMALIZE(left_joy->GetThrottle()));
+    } else if (left_joy->GetTrigger()) {
+      pickup->Set(NORMALIZE(left_joy->GetThrottle()));
+    } else if (left_joy->GetRawButton(2)) {
+      pickup->Set(-NORMALIZE(left_joy->GetThrottle()));
+    } else {
+      pickup->Set(0.0);
+    }
+  }
+
+  // Pickup - Select Button/Throttle Speed Control
+  if (left_joy->GetRawButton(8)) {
+    pickup_speed_selection = 1;
+    pickup_speed = 0;
+  } else if (left_joy->GetRawButton(9)) {
+    pickup_speed_selection = 2;
   }
 
   // Bridge: Up - Right Joy (3) || Down - Right Joy (2)

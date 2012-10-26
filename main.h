@@ -21,11 +21,11 @@ class ScitoBot : public IterativeRobot {
 
   Relay *bridge;
 
-  Timer *auto_time;
-
 public:
   unsigned int shooter_speed_selection;
   float shooter_speed;
+  unsigned int pickup_speed_selection;
+  float pickup_speed;
 
   ScitoBot(void);
 
