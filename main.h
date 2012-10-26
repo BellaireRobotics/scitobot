@@ -1,7 +1,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "AnalogChannel.h"
 #include "IterativeRobot.h"
 #include "Jaguar.h"
 #include "Joystick.h"
@@ -21,6 +20,9 @@ class ScitoBot : public IterativeRobot {
   Relay *bridge;
 
 public:
+  unsigned int shooter_speed_selection;
+  float shooter_speed;
+
   ScitoBot(void);
 
   void RobotInit(void);
