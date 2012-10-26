@@ -37,6 +37,7 @@ void ScitoBot::DisabledPeriodic(void) {
 
 void ScitoBot::AutonomousPeriodic(void) {
   shooter->Set(1.0);
+
   // Check if 5 seconds (5000 milliseconds) has passed.
   if (auto_time->Get() > 5000) {
     pickup->Set(0.75);
@@ -83,11 +84,11 @@ void ScitoBot::TeleopPeriodic(void) {
 
   // Pickup: Up - Left Joy (3) or Left Trigger || Reverse - Left Joy (2)
   if (left_joy->GetRawButton(3)) {
-    pickup->Set((-left_joy->GetThrottle() + 1) / 2);
+    pickup->Set(NORMALIZE(left_joy->GetThrottle()));
   } else if (left_joy->GetTrigger()) {
-    pickup->Set((-left_joy->GetThrottle() + 1) / 2);
+    pickup->Set(NORMALIZE(left_joy->GetThrottle()));
   } else if (left_joy->GetRawButton(2)) {
-    pickup->Set((left_joy->GetThrottle() - 1) / 2);
+    pickup->Set(-NORMALIZE(left_joy->GetThrottle()));
   } else {
     pickup->Set(0.0);
   }
