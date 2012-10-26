@@ -9,15 +9,19 @@
 #include "Timer.h"
 #include "Vision/AxisCamera.h"
 
+#define NORMALIZE(v) (-v + 1) / 2
+
 class ScitoBot : public IterativeRobot {
   RobotDrive *drive;
-  Joystick *rightStick;
-  Joystick *leftStick;
+  Joystick *left_joy;
+  Joystick *right_joy;
 
   Jaguar *shooter;
   Jaguar *pickup;
 
   Relay *bridge;
+
+  Timer *auto_time;
 
 public:
   unsigned int shooter_speed_selection;

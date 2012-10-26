@@ -2,28 +2,31 @@
 
 ScitoBot::ScitoBot(void) {
   drive = new RobotDrive(1, 2);
-  leftStick = new Joystick(1);
-  rightStick = new Joystick(2);
+  left_joy = new Joystick(1);
+  right_joy = new Joystick(2);
 
   shooter = new Jaguar(4);
   pickup = new Jaguar(5);
 
   bridge = new Relay(1);
+
+  auto_time = new Timer();
 }
 
 void ScitoBot::RobotInit(void) {
   GetWatchdog().SetEnabled(false);
-  drive->SetExpiration(0.1);
+  drive->SetExpiration(0.05);
   drive->SetSafetyEnabled(true);
 
-  shooter_speed_selection = 2;
-  shooter_speed = 1.0;
+  shooter_speed_selection = 1; // default to button speed control
+  shooter_speed = 0.75; // default shooter speed
 }
 
 void ScitoBot::DisabledInit(void) {
 }
 
 void ScitoBot::AutonomousInit(void) {
+  auto_time->Start(); // Start a timer to delay pickup motor.
 }
 
 void ScitoBot::TeleopInit(void) {
@@ -34,65 +37,65 @@ void ScitoBot::DisabledPeriodic(void) {
 
 void ScitoBot::AutonomousPeriodic(void) {
   shooter->Set(1.0);
-  Wait(5.0);
-  pickup->Set(0.75);
+  // Check if 5 seconds (5000 milliseconds) has passed.
+  if (auto_time->Get() > 5000) {
+    pickup->Set(0.75);
+
+    auto_time->Stop();
+  }
 }
 
 void ScitoBot::TeleopPeriodic(void) {
-  drive->TankDrive(leftStick, rightStick);
+  drive->TankDrive(left_joy, right_joy);
 
-  // Shooter - Right Joy (Trigger)
-  /*
-  if (rightStick->GetTrigger()) {
-    shooter->Set((-rightStick->GetThrottle() + 1) / 2);
-  } else {
-    shooter->Set(0.0);
-  }
-  */
-
+  // Shooter - Button Speed Selection
   if (shooter_speed_selection == 1) {
-    if (rightStick->GetRawButton(6)) {
+    if (right_joy->GetRawButton(6)) {
       shooter_speed = 0.25;
-    } else if (rightStick->GetRawButton(7)) {
+    } else if (right_joy->GetRawButton(7)) {
       shooter_speed = 0.50;
-    } else if (rightStick->GetRawButton(11)) {
+    } else if (right_joy->GetRawButton(11)) {
       shooter_speed = 0.75;
-    } else if (rightStick->GetRawButton(10)) {
+    } else if (right_joy->GetRawButton(10)) {
       shooter_speed = 1.0;
     }
 
-    shooter->Set(shooter_speed);
+    if (right_joy->GetTrigger()) {
+      shooter->Set(shooter_speed);
+    }
   }
 
+  // Shooter - Throttle Speed Selection
   if (shooter_speed_selection == 2) {
-    if (rightStick->GetTrigger()) {
-      shooter->Set((-rightStick->GetThrottle() + 1) / 2);
+    if (right_joy->GetTrigger()) {
+      shooter->Set(NORMALIZE(right_joy->GetThrottle()));
     } else {
       shooter->Set(0.0);
     }
   }
 
-  if (rightStick->GetRawButton(8)) {
+  // Select Button/Throttle Speed Control
+  if (right_joy->GetRawButton(8)) {
     shooter_speed_selection = 1;
-  } else if (rightStick->GetRawButton(9)) {
+  } else if (right_joy->GetRawButton(9)) {
     shooter_speed_selection = 2;
   }
 
-  // Pickup: Forward - Left Joy (3) || Backward - Left Joy (2)
-  if (leftStick->GetRawButton(3)) {
-    pickup->Set((-leftStick->GetThrottle() + 1) / 2);
-  } else if (leftStick->GetTrigger()) {
-    pickup->Set((-leftStick->GetThrottle() + 1) / 2);
-  } else if (leftStick->GetRawButton(2)) {
-    pickup->Set((leftStick->GetThrottle() - 1) / 2);
+  // Pickup: Up - Left Joy (3) or Left Trigger || Reverse - Left Joy (2)
+  if (left_joy->GetRawButton(3)) {
+    pickup->Set((-left_joy->GetThrottle() + 1) / 2);
+  } else if (left_joy->GetTrigger()) {
+    pickup->Set((-left_joy->GetThrottle() + 1) / 2);
+  } else if (left_joy->GetRawButton(2)) {
+    pickup->Set((left_joy->GetThrottle() - 1) / 2);
   } else {
     pickup->Set(0.0);
   }
 
   // Bridge: Up - Right Joy (3) || Down - Right Joy (2)
-  if (rightStick->GetRawButton(3)) {
+  if (right_joy->GetRawButton(3)) {
     bridge->Set(Relay::kForward);
-  } else if (rightStick->GetRawButton(2)) {
+  } else if (right_joy->GetRawButton(2)) {
     bridge->Set(Relay::kReverse);
   } else {
     bridge->Set(Relay::kOff);
