@@ -17,7 +17,16 @@ void ScitoBot::RobotInit(void) {
   GetWatchdog().SetEnabled(false);
   drive->SetExpiration(0.05);
   drive->SetSafetyEnabled(true);
+}
 
+void ScitoBot::DisabledInit(void) {
+}
+
+void ScitoBot::AutonomousInit(void) {
+  pickup_delay_done = 0;
+}
+
+void ScitoBot::TeleopInit(void) {
   shooter_speed_selection = 1; // default to button speed control
   shooter_speed = 0.0; // default shooter speed
 
@@ -25,20 +34,17 @@ void ScitoBot::RobotInit(void) {
   pickup_speed = 0.0; // default pickup speed
 }
 
-void ScitoBot::DisabledInit(void) {
-}
-
-void ScitoBot::AutonomousInit(void) {
-}
-
-void ScitoBot::TeleopInit(void) {
-}
-
 void ScitoBot::DisabledPeriodic(void) {
 }
 
 void ScitoBot::AutonomousPeriodic(void) {
-  shooter->Set(1.0);
+  shooter->Set(0.5);
+
+  if (pickup_delay_done == 0) {
+    Wait(3.0);
+    pickup_delay_done = 1;
+  }
+
   pickup->Set(0.50);
 }
 
@@ -63,7 +69,8 @@ void ScitoBot::TeleopPeriodic(void) {
   // Shooter - Throttle Speed Selection
   if (shooter_speed_selection == 2) {
     if (right_joy->GetTrigger()) {
-      shooter->Set(NORMALIZE(right_joy->GetThrottle()));
+      shooter_speed = NORMALIZE(right_joy->GetThrottle());
+      shooter->Set(shooter_speed);
     } else {
       shooter->Set(0.0);
     }
@@ -98,7 +105,8 @@ void ScitoBot::TeleopPeriodic(void) {
     if (left_joy->GetRawButton(3)) {
       pickup->Set(NORMALIZE(left_joy->GetThrottle()));
     } else if (left_joy->GetTrigger()) {
-      pickup->Set(NORMALIZE(left_joy->GetThrottle()));
+      pickup_speed = NORMALIZE(left_joy->GetThrottle());
+      pickup->Set(pickup_speed);
     } else if (left_joy->GetRawButton(2)) {
       pickup->Set(-NORMALIZE(left_joy->GetThrottle()));
     } else {

@@ -28,6 +28,8 @@ public:
   unsigned int pickup_speed_selection;
   float pickup_speed;
 
+  unsigned int pickup_delay_done;
+
   ScitoBot(void);
 
   void RobotInit(void);
