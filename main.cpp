@@ -10,7 +10,7 @@ ScitoBot::ScitoBot(void) {
 
   bridge = new Relay(1);
 
-  AxisCamera &cam = AxisCamera::GetInstance();
+  dash = SmartDashboard::GetInstance();
 }
 
 void ScitoBot::RobotInit(void) {
@@ -122,6 +122,12 @@ void ScitoBot::TeleopPeriodic(void) {
   } else {
     bridge->Set(Relay::kOff);
   }
+
+  // Push data values to Dashboard
+  dash->PutDouble("shooter_speed", shooter_speed);
+  dash->PutInt("shooter_mode", shooter_speed_selection);
+  dash->PutDouble("pickup_speed", pickup_speed);
+  dash->PutInt("pickup_mode", pickup_speed_selection);
 }
 
 void ScitoBot::DisabledContinuous(void) {

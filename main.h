@@ -6,8 +6,7 @@
 #include "Joystick.h"
 #include "Relay.h"
 #include "RobotDrive.h"
-#include "Timer.h"
-#include "Vision/AxisCamera.h"
+#include "SmartDashboard/SmartDashboard.h"
 
 #define NORMALIZE(v) (-v + 1) / 2
 
@@ -20,6 +19,8 @@ class ScitoBot : public IterativeRobot {
   Jaguar *pickup;
 
   Relay *bridge;
+
+  SmartDashboard *dash;
 
 public:
   unsigned int shooter_speed_selection;
