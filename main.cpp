@@ -38,7 +38,7 @@ void ScitoBot::DisabledPeriodic(void) {
 }
 
 void ScitoBot::AutonomousPeriodic(void) {
-  shooter->Set(0.5);
+  shooter->Set(0.4);
 
   if (pickup_delay_done == 0) {
     Wait(3.0);
